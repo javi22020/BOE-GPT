@@ -5,9 +5,7 @@ class LlamaCPPLLM:
         self.llm = Llama(
             model_path=model_path,
             n_gpu_layers=n_gpu_layers,
-            n_ctx=n_ctx,
-            flash_attn=True,
-            n_threads=8
+            n_ctx=n_ctx
         )
     
     def chat_stream(self, messages: list, max_tokens: Union[int, None] = None):
