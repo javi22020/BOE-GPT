@@ -21,6 +21,7 @@ class PDFReader:
                 if file.lower().endswith('.pdf'):
                     pdf_path = os.path.join(root, file)
                     tasks.append(self.extract_text_from_pdf(pdf_path))
+                print(f"Added task for {pdf_path}")
 
         extracted_texts = await asyncio.gather(*tasks)
 
