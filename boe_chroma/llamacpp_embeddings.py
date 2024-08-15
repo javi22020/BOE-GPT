@@ -8,4 +8,4 @@ class LlamaCPPEmbeddings(EmbeddingFunction):
             embedding=True
         )
     def __call__(self, input_docs: Documents) -> Embeddings:
-        return self.llama.embed(input_docs)
+        return self.llama.embed(input_docs, normalize=True)
