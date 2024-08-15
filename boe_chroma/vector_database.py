@@ -1,6 +1,7 @@
 import chromadb, requests as r
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
+from .pdf_service import get_boe_pdfs
 from .llamacpp_embeddings import LlamaCPPEmbeddings
 vector_db = chromadb.PersistentClient("./chroma")
 embedding_function = LlamaCPPEmbeddings("model/nomic-embed-text-v1.5.Q4_K_M.gguf")
@@ -16,5 +17,5 @@ def query(query: str):
     collection.query(query)
 
 @app.post("/download/{date}")
-def download_boe(date: str):
-    boe = r.get("")
+async def download_boe(date: str):
+    await get_boe_pdfs(date)
