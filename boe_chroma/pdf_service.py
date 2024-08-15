@@ -39,7 +39,7 @@ async def parse_pdf_stream(response):
         print(f"Unexpected error: {e}")
 
 async def get_boe_pdfs(date, max_retries=3, retry_delay=5):
-    url = f'http://127.0.0.1:8000/boe_pdfs/{date}'
+    url = f'http://127.0.0.1:6550/boe_pdfs/{date}'
     os.makedirs(f"pdfs/{date}", exist_ok=True)
     async with aiohttp.ClientSession() as session:
         for attempt in range(max_retries):

@@ -1,4 +1,4 @@
-from .pdfs import PDFSBOE
+from pdfs import PDFSBOE
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 import json
