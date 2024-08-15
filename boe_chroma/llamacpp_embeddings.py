@@ -5,6 +5,8 @@ class LlamaCPPEmbeddings(EmbeddingFunction):
         super().__init__()
         self.llama = Llama(
             model_path=path,
+            n_gpu_layers=12,
+            n_threads=8,
             embedding=True
         )
     def __call__(self, input_docs: Documents) -> Embeddings:

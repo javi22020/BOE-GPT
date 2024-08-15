@@ -19,7 +19,7 @@ async def root():
     return {"message": "Welcome to the Chroma API"}
 
 @app.post("/compute_embeddings")
-async def compute_embeddings(max_length: int = 4096):
+async def compute_embeddings(max_length: int = 2048):
     documents = await reader.extract_texts_from_folder("pdfs")
     final_docs = []
     for doc in documents:
@@ -34,6 +34,7 @@ async def compute_embeddings(max_length: int = 4096):
         print(f"Document ID: {ids[-1]}")
     print(f"Adding {len(documents)} documents to the collection")
     collection.add(ids=ids, documents=documents)
+    return JSONResponse(content={"message": "Embeddings computed and added to the collection"})
 
 @app.get("/query/{query}")
 def query(query: str):
