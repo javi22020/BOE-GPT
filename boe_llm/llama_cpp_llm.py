@@ -1,5 +1,5 @@
 from llama_cpp.llama import Llama
-
+from typing import Union
 class LlamaCPPLLM:
     def __init__(self, model_path: str, n_gpu_layers: int = 32, n_ctx: int = 128000) -> None:
         self.llm = Llama(
@@ -9,8 +9,8 @@ class LlamaCPPLLM:
             flash_attn=True,
             n_threads=8
         )
-
-if __name__ == "__main__":
-    llm = LlamaCPPLLM("models/Starling-LM-7B-beta-Q4_K_M.gguf", n_ctx=8192)
-    for m in llm.llm(prompt="Hello, my name is Javier, and this is my story: ", max_tokens=1024, stream=True):
-        print(m["choices"][0]["text"], end="")
+    
+    def chat_stream(self, messages: list, max_tokens: Union[int, None] = None):
+        for m in self.llm.create_chat_completion(messages=messages, max_tokens=max_tokens, stream=True):
+            if "content" in m["choices"][0]["delta"].keys():
+                yield m["choices"][0]["delta"]["content"]
