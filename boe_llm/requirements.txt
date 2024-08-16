@@ -3,3 +3,4 @@ llama-cpp-python
 wget
 fastapi
 uvicorn[standard]
+python-multipart

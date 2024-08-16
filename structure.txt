@@ -1,0 +1,52 @@
+BOE-GPT
+¦   .gitignore
+¦   ips.txt
+¦   structure.txt
+¦   
++---boe_chain
+¦       api_llm.py
+¦       chain.py
+¦       
++---boe_chroma
+¦       llamacpp_embeddings.py
+¦       pdf_reader.py
+¦       pdf_service.py
+¦       requirements.txt
+¦       vector_database_api.py
+¦       
++---boe_llm
+¦       llama_cpp_llm.py
+¦       llm_api.py
+¦       mamba_llm.py
+¦       models.json
+¦       requirements.txt
+¦       
++---boe_pdfs
+¦       api.py
+¦       pdfs.py
+¦       requirements.txt
+¦       
++---boe_react
+    ¦   .gitignore
+    ¦   jsconfig.json
+    ¦   next.config.mjs
+    ¦   package-lock.json
+    ¦   package.json
+    ¦   postcss.config.mjs
+    ¦   README.md
+    ¦   tailwind.config.js
+    ¦   
+    +---public
+    ¦       next.svg
+    ¦       vercel.svg
+    ¦       
+    +---src
+        +---app
+            ¦   favicon.ico
+            ¦   globals.css
+            ¦   layout.js
+            ¦   page.js
+            ¦   
+            +---chat
+                    page.js
+                    
