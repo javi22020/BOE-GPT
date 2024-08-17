@@ -1,27 +1,26 @@
-import aiohttp
+import requests as r
 import os
-import asyncio
 
-async def get_pdf_content_by_url(url: str, session: aiohttp.ClientSession):
-    async with session.get(url) as response:
-        if response.status != 200:
+def get_pdf_content_by_url(url: str, session: r.Session):
+    with session.get(url) as response:
+        if response.status_code != 200:
             return None
-        return await response.read()
+        return response.content
 
 class PDFSBOE:
     def __init__(self) -> None:
         if not os.path.exists("pdfs"):
             os.makedirs("pdfs", exist_ok=True)
 
-    async def get_boe_by_date(self, date: str):
+    def get_boe_by_date(self, date: str):
         """Get the BOE by date (aaaammdd)"""
         url = f"https://boe.es/datosabiertos/api/boe/sumario/{date}"
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers={"Accept": "application/json"}) as response:
-                if response.status != 200:
+        with r.Session() as session:
+            with session.get(url, headers={"Accept": "application/json"}) as response:
+                if response.status_code != 200:
                     yield None
                     return
-                data = await response.json()
+                data = response.json()
             
             data = data["data"]
             diarios = data["sumario"]["diario"]
@@ -50,6 +49,6 @@ class PDFSBOE:
                                 pdfs.append(item["url_pdf"]["texto"])
 
             for pdf in pdfs:
-                pdf_content = await get_pdf_content_by_url(pdf, session)
+                pdf_content = get_pdf_content_by_url(pdf, session)
                 if pdf_content:
                     yield pdf_content
