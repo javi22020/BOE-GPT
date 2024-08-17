@@ -17,11 +17,8 @@ async def root():
 
 @app.post("/compute_embeddings")
 async def compute_embeddings(max_length: int = 2048):
-    documents = await reader.extract_texts_from_folder("pdfs")
-    final_docs = []
-    for doc in documents:
-        final_docs.extend(divide_text(doc, max_length=max_length))
-    print(f"Extracted {len(documents)} documents and divided them into {len(final_docs)} parts")
+    documents = []
+    
     rn.seed(5)
     ids = []
     for doc in documents:
