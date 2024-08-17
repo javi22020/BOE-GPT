@@ -16,7 +16,7 @@ def start_llm(model_path: str, n_gpu_layers: int = 32, n_ctx: int = 128000):
 @app.post("/chat_stream")
 def chat_stream(messages: list, max_tokens: int):
     try:
-        return StreamingResponse(llm.chat_stream(messages=messages, max_tokens=max_tokens))
+        return StreamingResponse(llm.chat_stream(messages=messages, max_tokens=max_tokens), media_type="text/stream")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
