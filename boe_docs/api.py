@@ -13,14 +13,14 @@ app = FastAPI()
 def root():
     return {"message": "Welcome to the APIBOE API"}
 
-@app.get("/boe_docs")
-def get_boe_by_date(date: str):
+@app.get("/boe_docs/{date}")
+def get_boe_by_date(date: str, max_length: int = 4096, overlap: int = 1024):
     os.makedirs(f"pdfs/{date}", exist_ok=True)
     for i, pdf in enumerate(pdfs.get_boe_by_date(date)):
         with open(f"pdfs/{date}/{i}.pdf", "wb") as f:
             f.write(pdf)
     docs = get_documents_from_pdfs("pdfs")
-    docs = divide_documents(docs)
+    docs = divide_documents(documents=docs, max_length=max_length, overlap=overlap)
     def docs_gen():
         for doc in docs:
             yield json.dumps(doc).encode('utf-8') + b'\n'
