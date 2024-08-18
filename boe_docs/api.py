@@ -13,7 +13,7 @@ app = FastAPI()
 def root():
     return {"message": "Welcome to the APIBOE API"}
 
-@app.get("/boe_docs/{date}")
+@app.get("/boe_docs")
 def get_boe_by_date(date: str):
     os.makedirs(f"pdfs/{date}", exist_ok=True)
     for i, pdf in enumerate(pdfs.get_boe_by_date(date)):
