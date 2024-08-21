@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException
 from chromadb import HttpClient
 from tqdm import tqdm
 import requests as r
+import base64 as b64
 import random as rn
 import os
 import logging
@@ -23,11 +24,6 @@ def embed_documents(docs: Documents):
     embeddings = LlamaCPPEmbeddings()
     return embeddings(docs)
 
-def compute_id(doc: str):
-    rn.seed(35)
-    fragment = "".join(rn.sample(list(doc), 16))
-    return fragment
-
 @app.get("/")
 def root():
     return {"message": "Welcome to the APIBOE API"}
@@ -37,10 +33,12 @@ def send_to_chroma(date: str):
     try:
         # Download PDFs
         pdf_count = 0
+        ids = []
         for name, pdf in tqdm(pdfs.get_boe_by_date(date), desc="Downloading PDFs"):
             if pdf:
                 if not os.path.exists(f"pdfs/{date}"):
                     os.makedirs(f"pdfs/{date}", exist_ok=True)
+                ids.append(name)
                 with open(f"pdfs/{date}/{name}.pdf", "wb") as f:
                     f.write(pdf)
                 pdf_count += 1
@@ -54,7 +52,6 @@ def send_to_chroma(date: str):
         docs = divide_documents(docs)
         logger.info(f"Divided into {len(docs)} document chunks")
         
-        ids = [compute_id(doc) for doc in docs]
         logger.info(f"Generated {len(ids)} document IDs")
 
         # Generate embeddings

@@ -14,6 +14,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 RUN CMAKE_ARGS="-DGGML_CUDA=on" pip install llama-cpp-python
 
-EXPOSE 4550
+EXPOSE 4550:4550
 
 CMD ["python", "llm_api.py"]

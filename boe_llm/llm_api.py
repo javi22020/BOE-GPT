@@ -51,4 +51,4 @@ def download_llm(model_index: int):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=4550)
+    uvicorn.run(app, host="0.0.0.0", port=4550)
