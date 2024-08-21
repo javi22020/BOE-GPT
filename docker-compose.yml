@@ -1,11 +1,17 @@
 name: boe-gpt
+
 services:
   chroma:
     image: chromadb/chroma
     networks:
       - red
     ports:
-      - "8000:5550"
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   
   docs:
     build: ./boe_docs
@@ -13,6 +19,16 @@ services:
       - red
     ports:
       - "6550:6550"
+    depends_on:
+      chroma:
+        condition: service_healthy
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
 networks:
   red:

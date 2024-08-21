@@ -6,8 +6,7 @@ def get_documents_from_pdfs(folder: str):
         recursive=True
     )
     docs = loader.load()
-    docs_contents, ids = [d.page_content for d in docs], [d.id for d in docs]
-    return docs_contents, ids
+    return docs
 
 def divide_documents(documents: list):
     splitter = RecursiveCharacterTextSplitter()

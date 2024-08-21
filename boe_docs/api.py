@@ -4,14 +4,18 @@ from llamacpp_embeddings import LlamaCPPEmbeddings
 from chromadb import Documents
 from fastapi import FastAPI, HTTPException
 from chromadb import HttpClient
-from fastapi.responses import StreamingResponse
 from tqdm import tqdm
 import requests as r
 import json
 import os
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 pdfs = PDFSBOE()
-chroma_client = HttpClient(host="chroma", port=5550)
+chroma_client = HttpClient(host="chroma", port=8000)
 collection = chroma_client.get_or_create_collection("docs")
 app = FastAPI()
 
@@ -26,24 +30,40 @@ def root():
 @app.post("/send_to_chroma/{date}")
 def send_to_chroma(date: str):
     try:
+        # Download PDFs
+        pdf_count = 0
         for name, pdf in tqdm(pdfs.get_boe_by_date(date), desc="Downloading PDFs"):
             if pdf:
                 if not os.path.exists(f"pdfs/{date}"):
                     os.makedirs(f"pdfs/{date}", exist_ok=True)
                 with open(f"pdfs/{date}/{name}.pdf", "wb") as f:
                     f.write(pdf)
-        docs, ids = get_documents_from_pdfs(f"pdfs/{date}")
-        print("Documents loaded")
+                pdf_count += 1
+        logger.info(f"Downloaded {pdf_count} PDFs")
+
+        # Load documents
+        docs = get_documents_from_pdfs(f"pdfs/{date}")
+        ids = [doc.id for doc in docs]
+        logger.info(f"Loaded {len(docs)} documents")
+
+        # Divide documents
         docs = divide_documents(docs)
-        print("Documents divided")
+        logger.info(f"Divided into {len(docs)} document chunks")
+
+        # Generate embeddings
         embeddings = embed_documents(docs)
-        print("Embeddings generated")
-        collection.add(ids=ids, embeddings=embeddings)
-    except:
-        raise HTTPException(status_code=500, detail="Error processing PDFs")
-    
-    return {"message": "PDFs processed and sent to ChromaDB"}
+        logger.info(f"Generated {len(embeddings)} embeddings")
+
+        # Add to collection
+        collection.add(ids=ids, embeddings=embeddings, documents=docs)
+        logger.info("Added documents to ChromaDB collection")
+
+        return {"message": f"Successfully processed {pdf_count} PDFs and sent to ChromaDB"}
+
+    except Exception as e:
+        logger.error(f"Error in send_to_chroma: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing PDFs: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("api:app", host="127.0.0.1", port=6550)
+    uvicorn.run("api:app", host="0.0.0.0", port=6550)
