@@ -6,7 +6,7 @@ from fastapi import FastAPI, HTTPException
 from chromadb import HttpClient
 from tqdm import tqdm
 import requests as r
-import json
+import random as rn
 import os
 import logging
 
@@ -22,6 +22,11 @@ app = FastAPI()
 def embed_documents(docs: Documents):
     embeddings = LlamaCPPEmbeddings()
     return embeddings(docs)
+
+def compute_id(doc: str):
+    rn.seed(35)
+    fragment = "".join(rn.sample(list(doc), 16))
+    return fragment
 
 @app.get("/")
 def root():
@@ -43,12 +48,14 @@ def send_to_chroma(date: str):
 
         # Load documents
         docs = get_documents_from_pdfs(f"pdfs/{date}")
-        ids = [doc.id for doc in docs]
         logger.info(f"Loaded {len(docs)} documents")
 
         # Divide documents
         docs = divide_documents(docs)
         logger.info(f"Divided into {len(docs)} document chunks")
+        
+        ids = [compute_id(doc) for doc in docs]
+        logger.info(f"Generated {len(ids)} document IDs")
 
         # Generate embeddings
         embeddings = embed_documents(docs)

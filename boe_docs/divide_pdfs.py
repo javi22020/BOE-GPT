@@ -11,4 +11,4 @@ def get_documents_from_pdfs(folder: str):
 def divide_documents(documents: list):
     splitter = RecursiveCharacterTextSplitter()
     docs = splitter.split_documents(documents=documents)
-    return docs
+    return [d.page_content for d in docs]
