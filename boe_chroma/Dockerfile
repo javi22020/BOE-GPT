@@ -1,23 +1,29 @@
-from python:3.10-slim
+FROM python:3.10-slim
 
-# Set the working directory
+FROM nvidia/cuda:12.6.0-runtime-ubuntu22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
-
 COPY . /app
 
-# Create venv
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    build-essential \
+    cmake \
+    git \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN python -m venv venv
+ENV CMAKE_ARGS="-DGGML_CUDA=on"
 
-# Make venv the active environment
+RUN python3 -m venv venv
 
 RUN . venv/bin/activate
 
-# Install any needed packages specified in requirements.txt
-
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Make port 80 available to the world outside this container
+EXPOSE 5550:5550
+
+CMD ["python3", "chroma_server.py"]

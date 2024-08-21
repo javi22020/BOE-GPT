@@ -1,8 +1,12 @@
+import os, wget
 from chromadb import Documents, EmbeddingFunction, Embeddings
 from llama_cpp import Llama
 class LlamaCPPEmbeddings(EmbeddingFunction):
     def __init__(self, path: str) -> None:
         super().__init__()
+        if not os.path.exists("models/nomic-embed-text-v1.5.Q4_K_M.gguf"):
+            os.makedirs("models", exist_ok=True)
+            wget.download("https://huggingface.co/nomic-ai/nomic-embed-text-v1.5-GGUF/resolve/main/nomic-embed-text-v1.5.Q4_K_M.gguf", "models/nomic-embed-text-v1.5.Q4_K_M.gguf")
         self.llama = Llama(
             model_path=path,
             n_gpu_layers=12,
