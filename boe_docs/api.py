@@ -1,6 +1,7 @@
 from get_pdfs import PDFSBOE
 from divide_pdfs import get_documents_from_pdfs, divide_documents
-from embed_docs import embed_documents
+from llamacpp_embeddings import LlamaCPPEmbeddings
+from chromadb import Documents
 from fastapi import FastAPI, HTTPException
 from chromadb import HttpClient
 from fastapi.responses import StreamingResponse
@@ -13,6 +14,10 @@ pdfs = PDFSBOE()
 chroma_client = HttpClient(host="chroma", port=5550)
 collection = chroma_client.get_or_create_collection("docs")
 app = FastAPI()
+
+def embed_documents(docs: Documents):
+    embeddings = LlamaCPPEmbeddings()
+    return embeddings(docs)
 
 @app.get("/")
 def root():
