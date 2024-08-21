@@ -1,19 +1,25 @@
-FROM python:3.10
+FROM nvidia/cuda:12.4.0-runtime-ubuntu22.04
+
+COPY . app/
 
 WORKDIR /app
 
+ENV CMAKE_ARGS="-DGGML_CUDA=on"
+
 RUN apt-get update && apt-get install -y \
+    python3.10 \
+    python3.10-venv \
+    python3-pip \
     build-essential \
     cmake \
-    git
-
-COPY . /app
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-RUN CMAKE_ARGS="-DGGML_CUDA=on" pip install llama-cpp-python
+    curl
+    
+RUN python3 -m venv venv
+    
+RUN . venv/bin/activate && pip install llama-cpp-python \
+--extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu121 \
+&& pip install -r requirements.txt
 
 EXPOSE 4550:4550
 
-CMD ["python", "llm_api.py"]
+CMD . venv/bin/activate && python3 llm_api.py

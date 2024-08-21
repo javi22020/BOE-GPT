@@ -12,7 +12,11 @@ def start_llm(model_path: str, n_gpu_layers: int = 32, n_ctx: int = 128000):
         return {"message": "LLM started"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+@app.get("/heartbeat")
+def heartbeat():
+    return {"message": "Alive"}
+
 @app.post("/chat_stream")
 def chat_stream(messages: list, max_tokens: int):
     try:

@@ -2,7 +2,7 @@ requests
 pydantic
 fastapi
 uvicorn[standard]
-pypdf
+pdfminer.six
 langchain-community
 langchain-text-splitters
 tqdm

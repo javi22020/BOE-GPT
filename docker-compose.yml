@@ -29,6 +29,25 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
+  
+  llm:
+    build: ./boe_llm
+    networks:
+      - red
+    ports:
+      - "4550:4550"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4550/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
 networks:
   red:
