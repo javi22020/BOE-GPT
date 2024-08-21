@@ -50,9 +50,10 @@ class PDFSBOE:
             
             try:
                 for pdf in pdfs:
+                    pdf_name = pdf.split("/")[-1].replace(".pdf", "")
                     pdf_content = get_pdf_content_by_url(pdf, session)
                     if pdf_content:
-                        yield pdf_content
+                        yield pdf_name, pdf_content
             except Exception as e:
                 print(f"Error downloading PDF: {e}")
                 yield None

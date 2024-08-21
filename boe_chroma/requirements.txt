@@ -1,7 +1,0 @@
-requests
-pydantic
-fastapi
-llama-cpp-python
-uvicorn[standard]
-chromadb
-wget

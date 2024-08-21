@@ -1,0 +1,19 @@
+name: boe-gpt
+services:
+  chroma:
+    image: chromadb/chroma
+    networks:
+      - red
+    ports:
+      - "8000:5550"
+  
+  docs:
+    build: ./boe_docs
+    networks:
+      - red
+    ports:
+      - "6550:6550"
+
+networks:
+  red:
+    driver: bridge
