@@ -8,12 +8,17 @@ WORKDIR /app
 
 COPY . /app
 
+ENV PATH=/usr/local/cuda/bin:${PATH}
+ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
+ENV CUDAToolkit_ROOT=/opt/cuda/bin/nvcc
+
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     python3.10-venv \
     build-essential \
     cmake \
+    ccache \
     git \
     && rm -rf /var/lib/apt/lists/*
 

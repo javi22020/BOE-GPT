@@ -4,7 +4,7 @@ import chromadb
 from typing import List, Optional
 from llamacpp_embeddings import LlamaCPPEmbeddings
 app = FastAPI()
-embedding_function = LlamaCPPEmbeddings(path="models/")
+embedding_function = LlamaCPPEmbeddings()
 # Initialize ChromaDB client
 client = chromadb.PersistentClient()
 
@@ -57,4 +57,4 @@ async def delete_collection(collection_name: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=6550)
+    uvicorn.run(app, host="0.0.0.0", port=5550)
