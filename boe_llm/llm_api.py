@@ -3,7 +3,8 @@ from fastapi.responses import StreamingResponse, JSONResponse
 from llama_cpp_llm import LlamaCPPLLM
 import json, os, wget
 app = FastAPI()
-
+if not os.path.exists("models"):
+    os.makedirs("models", exist_ok=True)
 @app.post("/start_llm")
 def start_llm(model_path: str, n_gpu_layers: int = 32, n_ctx: int = 128000):
     global llm
@@ -39,7 +40,7 @@ def get_llms():
             llms.append(model)
     return llms
 
-@app.post("/download_llm")
+@app.post("/download_llm/{model_index}")
 def download_llm(model_index: int):
     models = json.load(open("models.json", "r", encoding="utf-8"))
     if model_index >= len(models):
