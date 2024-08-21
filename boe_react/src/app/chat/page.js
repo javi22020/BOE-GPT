@@ -39,7 +39,7 @@ const ChatScreen = () => {
   return (
     <div className={`min-h-screen bg-black text-white flex flex-col ${montserrat.className}`}>
       <header className="bg-gray-900 p-4">
-        <h1 className="text-2xl font-bold">BOE-GPT Chat</h1>
+        <h1 className="text-2xl font-bold">Chat</h1>
       </header>
       <div className="flex-grow overflow-auto p-4 space-y-4">
         {chat.map((message, index) => (
@@ -56,7 +56,7 @@ const ChatScreen = () => {
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type your message..."
+            placeholder="Escribe tu mensaje..."
             className="flex-grow px-4 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button 
@@ -64,7 +64,7 @@ const ChatScreen = () => {
             className="px-6 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed"
             disabled={!newMessage.trim()}
           >
-            Send
+            Enviar
           </button>
         </div>
       </form>

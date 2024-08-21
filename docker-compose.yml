@@ -48,6 +48,18 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
+  
+  react:
+    build: ./boe_react
+    networks:
+      - red
+    ports:
+      - "3000:3000"
+    depends_on:
+      chroma:
+        condition: service_healthy
+      llm:
+        condition: service_healthy
 
 networks:
   red:

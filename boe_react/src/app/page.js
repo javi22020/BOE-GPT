@@ -1,5 +1,6 @@
 "use client";
 import React from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Montserrat } from 'next/font/google';
 import { MessageSquare, Settings } from 'lucide-react';
@@ -19,7 +20,15 @@ const MainPage = () => {
 
   return (
     <div className={`min-h-screen bg-black flex flex-col items-center justify-center ${montserrat.className}`}>
-      <h1 className="text-6xl font-bold text-white mb-8">BOE-GPT</h1>
+      <div className="flex items-center mb-8">
+        <h1 className="text-6xl font-bold text-white mr-4">BOE-GPT</h1>
+        <Image
+          src="/logo.png"
+          alt="BOE-GPT Logo"
+          width={80}
+          height={80}
+        />
+      </div>
       <div className="flex space-x-4">
         <button
           onClick={navigateToChat}
