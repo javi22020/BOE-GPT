@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Montserrat } from 'next/font/google';
 import { Save, RefreshCw, Plus, X } from 'lucide-react';
