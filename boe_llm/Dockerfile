@@ -7,8 +7,8 @@ WORKDIR /app
 ENV CUDA_HOME="/usr/local/cuda"
 ENV PATH="${CUDA_HOME}/bin:${PATH}"
 ENV LD_LIBRARY_PATH="${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}"
-
-ENV CMAKE_ARGS="-DGGML_CUDA=on -DCMAKE_CUDA_COMPILER=${CUDA_HOME}/bin/nvcc"
+ENV CUDACXX="${CUDA_HOME}/bin/nvcc"
+ENV CMAKE_ARGS="-DGGML_CUDA=on -DCMAKE_CUDA_COMPILER=${CUDA_HOME}/bin/nvcc -DLLAVA_BUILD=off"
 ENV FORCE_CMAKE=1
 
 RUN apt-get update && apt-get install -y \
@@ -25,7 +25,7 @@ RUN python3 -m venv venv
     
 RUN . venv/bin/activate && \
     pip install --upgrade pip setuptools wheel && \
-    pip install llama-cpp-python --no-cache-dir \
+    CUDA_HOME=/usr/local/cuda  pip install llama-cpp-python \
     --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu124 \
     && pip install -r requirements.txt
 
