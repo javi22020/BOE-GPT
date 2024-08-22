@@ -4,7 +4,9 @@ COPY . app/
 
 WORKDIR /app
 
-ENV CMAKE_ARGS="-DGGML_CUDA=on -DLLAMA_CUBLAS=on"
+ENV CUDA_HOME=/usr/local/cuda-12.4
+
+ENV CMAKE_ARGS="-DGGML_CUDA=on"
 
 ENV GGML_CUDA="on"
 
@@ -14,6 +16,7 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     build-essential \
     cmake \
+    ccache \
     curl
     
 RUN python3 -m venv venv
