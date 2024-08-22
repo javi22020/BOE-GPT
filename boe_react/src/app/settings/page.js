@@ -3,21 +3,58 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Montserrat } from 'next/font/google';
 import { Save, RefreshCw, Plus, X } from 'lucide-react';
+import axios from 'axios';
 
 const montserrat = Montserrat({ subsets: ['latin'] });
 
 const SettingsPage = () => {
   const router = useRouter();
-  const [model, setModel] = useState('gpt-3.5-turbo');
+  const [availableModels, setAvailableModels] = useState([]);
+  const [selectedModel, setSelectedModel] = useState('');
   const [contextTokens, setContextTokens] = useState(2048);
+  const [maxContextTokens, setMaxContextTokens] = useState(2048);
   const [boeDates, setBoeDates] = useState([]);
   const [currentDate, setCurrentDate] = useState('');
 
-  const handleSaveSettings = () => {
-    // Aquí iría la lógica para guardar los ajustes
-    console.log('Settings saved:', { model, contextTokens, boeDates });
-    // Simular reinicio de la app
-    router.push('/');
+  useEffect(() => {
+    fetchAvailableModels();
+  }, []);
+
+  const fetchAvailableModels = async () => {
+    try {
+      const response = await axios.get('http://llm:4550/all_llms');
+      setAvailableModels(response.data);
+      if (response.data.length > 0) {
+        setSelectedModel(response.data[0].name);
+        setMaxContextTokens(response.data[0].config.n_ctx);
+      }
+    } catch (error) {
+      console.error('Error fetching models:', error);
+    }
+  };
+
+  const handleModelChange = (e) => {
+    const modelName = e.target.value;
+    setSelectedModel(modelName);
+    const selectedModelConfig = availableModels.find(model => model.name === modelName);
+    if (selectedModelConfig) {
+      setMaxContextTokens(selectedModelConfig.config.n_ctx);
+      setContextTokens(Math.min(contextTokens, selectedModelConfig.config.n_ctx));
+    }
+  };
+
+  const handleSaveSettings = async () => {
+    try {
+      const modelIndex = availableModels.findIndex(model => model.name === selectedModel);
+      if (modelIndex !== -1) {
+        await axios.post(`http://llm:4550/set_llm/${modelIndex}`);
+      }
+      // Here you would also send the contextTokens and boeDates to your backend if needed
+      console.log('Settings saved:', { selectedModel, contextTokens, boeDates });
+      router.push('/');
+    } catch (error) {
+      console.error('Error saving settings:', error);
+    }
   };
 
   const handleAddDate = () => {
@@ -40,13 +77,13 @@ const SettingsPage = () => {
           <label htmlFor="model-select" className="block mb-2">Modelo de Lenguaje</label>
           <select
             id="model-select"
-            value={model}
-            onChange={(e) => setModel(e.target.value)}
+            value={selectedModel}
+            onChange={handleModelChange}
             className="w-full p-2 bg-gray-700 rounded"
           >
-            <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-            <option value="gpt-4">GPT-4</option>
-            <option value="claude-v1">Claude v1</option>
+            {availableModels.map((model, index) => (
+              <option key={index} value={model.name}>{model.name}</option>
+            ))}
           </select>
         </div>
 
@@ -58,7 +95,7 @@ const SettingsPage = () => {
             type="range"
             id="context-tokens"
             min="1024"
-            max="8192"
+            max={maxContextTokens}
             step="1024"
             value={contextTokens}
             onChange={(e) => setContextTokens(Number(e.target.value))}
@@ -103,7 +140,7 @@ const SettingsPage = () => {
           className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center transition duration-300"
         >
           <Save className="mr-2" size={20} />
-          Aplicar Ajustes y Reiniciar
+          Aplicar Ajustes
         </button>
       </div>
     </div>
