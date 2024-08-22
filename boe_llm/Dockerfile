@@ -4,7 +4,7 @@ COPY . app/
 
 WORKDIR /app
 
-ENV CUDA_HOME=/usr/local/cuda-12.4
+ENV CUDAToolkit_ROOT="/usr/local/cuda-12.4/bin/nvcc"
 
 ENV CMAKE_ARGS="-DGGML_CUDA=on"
 
