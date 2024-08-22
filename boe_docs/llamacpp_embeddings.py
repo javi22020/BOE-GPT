@@ -10,6 +10,7 @@ class LlamaCPPEmbeddings(EmbeddingFunction):
         self.llama = Llama(
             model_path="models/nomic-embed-text-v1.5.Q4_K_M.gguf",
             n_gpu_layers=12,
+            n_ctx=2048,
             n_threads=8,
             embedding=True
         )

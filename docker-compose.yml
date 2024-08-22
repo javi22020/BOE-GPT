@@ -54,6 +54,23 @@ services:
               count: 1
               capabilities: [gpu]
   
+  chain:
+    build: ./boe_chain
+    networks:
+      - red
+    ports:
+      - "3550:3550"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3550/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      docs:
+        condition: service_healthy
+      llm:
+        condition: service_healthy
+  
   react:
     build: ./boe_react
     networks:

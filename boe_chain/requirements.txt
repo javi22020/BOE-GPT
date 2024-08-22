@@ -3,5 +3,5 @@ chromadb
 langchain-community
 langchain-chroma
 openai
-llama-cpp-python
 langchain-openai
+wget

@@ -19,10 +19,18 @@ pdfs = PDFSBOE()
 chroma_client = HttpClient(host="chroma", port=8000)
 collection = chroma_client.get_or_create_collection("docs")
 app = FastAPI()
+embedding_function = LlamaCPPEmbeddings()
 
 def embed_documents(docs: Documents):
-    embeddings = LlamaCPPEmbeddings()
-    return embeddings(docs)
+    return embedding_function(docs)
+
+def separate_ids(ids: list[str]):
+    for i in range(1, len(ids)):
+        if ids[i] != ids[i-1]:
+            ids[i] = f"{ids[i]}_0"
+        elif ids[i] == ids[i-1]:
+            ids[i] = f"{ids[i]}_{int(ids[i-1][-1]) + 1}"
+    return ids
 
 @app.get("/")
 def root():
@@ -38,6 +46,16 @@ def send_to_chroma(date: str):
         # Download PDFs
         pdf_count = 0
         ids = []
+        if os.path.exists(f"pdfs/{date}"):
+            if len(os.listdir(f"pdfs/{date}")) == len(pdfs.get_urls_by_date(date)):
+                logger.info("PDFs already downloaded")
+                docs = get_documents_from_pdfs(f"pdfs/{date}")
+                docs, ids = divide_documents(docs)
+                ids = separate_ids(ids)
+                embeddings = embed_documents(docs)
+                collection.add(ids=ids, embeddings=embeddings)
+                return {"message": "PDFs already downloaded and sent to ChromaDB"}
+
         for name, pdf in tqdm(pdfs.get_boe_by_date(date), desc="Downloading PDFs"):
             if pdf:
                 if not os.path.exists(f"pdfs/{date}"):
@@ -53,7 +71,9 @@ def send_to_chroma(date: str):
         logger.info(f"Loaded {len(docs)} documents")
 
         # Divide documents
-        docs = divide_documents(docs)
+        docs, ids = divide_documents(docs)
+        ids = separate_ids(ids)
+            
         logger.info(f"Divided into {len(docs)} document chunks")
         
         logger.info(f"Generated {len(ids)} document IDs")
@@ -61,9 +81,9 @@ def send_to_chroma(date: str):
         # Generate embeddings
         embeddings = embed_documents(docs)
         logger.info(f"Generated {len(embeddings)} embeddings")
-
+        
         # Add to collection
-        collection.add(ids=ids, embeddings=embeddings, documents=docs)
+        collection.add(ids=ids, embeddings=embeddings)
         logger.info("Added documents to ChromaDB collection")
 
         return {"message": f"Successfully processed {pdf_count} PDFs and sent to ChromaDB"}
@@ -74,4 +94,4 @@ def send_to_chroma(date: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("api:app", host="0.0.0.0", port=6550)
+    uvicorn.run("api:app", host="0.0.0.0", port=6550, reload=True)
