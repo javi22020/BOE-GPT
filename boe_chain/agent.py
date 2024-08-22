@@ -4,7 +4,7 @@ from langchain_community.utilities.wikipedia import WikipediaAPIWrapper
 from langchain_openai import ChatOpenAI
 agent = create_react_agent(
     model=ChatOpenAI(
-        base_url="http://127.0.0.1:4550/v1",
+        base_url="http://llm:4550/v1",
         streaming=True
     ),
     tools=[
