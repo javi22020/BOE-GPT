@@ -94,4 +94,4 @@ def send_to_chroma(date: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("api:app", host="0.0.0.0", port=6550, reload=True)
+    uvicorn.run("api:app", host="0.0.0.0", port=6550)
