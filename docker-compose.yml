@@ -78,9 +78,7 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      chroma:
-        condition: service_healthy
-      llm:
+      chain:
         condition: service_healthy
 
 networks:
