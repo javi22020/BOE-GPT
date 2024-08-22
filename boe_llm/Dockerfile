@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y \
     
 RUN python3 -m venv venv
     
-RUN . venv/bin/activate && pip install llama-cpp-python \
+RUN . venv/bin/activate && pip install llama-cpp-python[server] \
 --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu121 \
 && pip install -r requirements.txt
 

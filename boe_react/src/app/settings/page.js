@@ -11,8 +11,6 @@ const SettingsPage = () => {
   const router = useRouter();
   const [availableModels, setAvailableModels] = useState([]);
   const [selectedModel, setSelectedModel] = useState('');
-  const [contextTokens, setContextTokens] = useState(2048);
-  const [maxContextTokens, setMaxContextTokens] = useState(2048);
   const [boeDates, setBoeDates] = useState([]);
   const [currentDate, setCurrentDate] = useState('');
 
@@ -85,22 +83,6 @@ const SettingsPage = () => {
               <option key={index} value={model.name}>{model.name}</option>
             ))}
           </select>
-        </div>
-
-        <div>
-          <label htmlFor="context-tokens" className="block mb-2">
-            Tokens de Contexto: {contextTokens}
-          </label>
-          <input
-            type="range"
-            id="context-tokens"
-            min="1024"
-            max={maxContextTokens}
-            step="1024"
-            value={contextTokens}
-            onChange={(e) => setContextTokens(Number(e.target.value))}
-            className="w-full"
-          />
         </div>
 
         <div>

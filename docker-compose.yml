@@ -19,6 +19,11 @@ services:
       - red
     ports:
       - "6550:6550"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6550/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     depends_on:
       chroma:
         condition: service_healthy

@@ -1,7 +1,9 @@
 requests
-llama-cpp-python
 wget
 fastapi
 uvicorn[standard]
 python-multipart
 PyYAML
+sse-starlette
+starlette-context
+pydantic-settings

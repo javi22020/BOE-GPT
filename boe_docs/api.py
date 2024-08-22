@@ -28,6 +28,10 @@ def embed_documents(docs: Documents):
 def root():
     return {"message": "Welcome to the APIBOE API"}
 
+@app.get("/heartbeat")
+def heartbeat():
+    return {"message": "Alive"}
+
 @app.post("/send_to_chroma/{date}")
 def send_to_chroma(date: str):
     try:
