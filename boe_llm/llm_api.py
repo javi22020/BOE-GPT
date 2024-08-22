@@ -1,18 +1,20 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
 from llama_cpp_llm import LlamaCPPLLM
-import json, os, wget
+import json, os, wget, yaml
+config = yaml.safe_load(open("config.yaml", "r", encoding="utf-8"))
+models = json.load(open("models.json", "r", encoding="utf-8"))
+model_idx = config["model_index"]
+model = models[model_idx]
 app = FastAPI()
+
 if not os.path.exists("models"):
     os.makedirs("models", exist_ok=True)
-@app.post("/start_llm")
-def start_llm(model_path: str, n_gpu_layers: int = 32, n_ctx: int = 128000):
-    global llm
-    try:
-        llm = LlamaCPPLLM(model_path=model_path, n_gpu_layers=n_gpu_layers, n_ctx=n_ctx)
-        return {"message": "LLM started"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+
+if not os.path.exists(f"models/{model['filename']}"):
+    wget.download(model["url"], f"models/{model['filename']}")
+
+llm = LlamaCPPLLM(model_path=f"models/{model['filename']}", n_gpu_layers=model["config"]["n_gpu_layers"], n_ctx=model["config"]["n_ctx"])
 
 @app.get("/heartbeat")
 def heartbeat():
@@ -30,14 +32,18 @@ def get_all_llms():
     models = json.load(open("models.json", "r", encoding="utf-8"))
     return models
 
+@app.post("/set_llm/{model_index}")
+def set_llm(model_index: int):
+    yaml.safe_dump({"model_index": model_index}, open("config.yaml", "w", encoding="utf-8"))
+    return JSONResponse(content={"message": "Model set"})
+
 @app.get("/downloaded_llms")
 def get_llms():
-    models = json.load(open("models.json", "r", encoding="utf-8"))
     llms = []
     files = os.listdir("models")
-    for model in models:
-        if model["filename"] in files:
-            llms.append(model)
+    for m in models:
+        if m["filename"] in files:
+            llms.append(m)
     return llms
 
 @app.post("/download_llm/{model_index}")
