@@ -71,15 +71,15 @@ services:
       llm:
         condition: service_healthy
   
-  react:
-    build: ./boe_react
-    networks:
-      - red
-    ports:
-      - "3000:3000"
-    depends_on:
-      chain:
-        condition: service_healthy
+  # react:
+  #   build: ./boe_react
+  #   networks:
+  #     - red
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     chain:
+  #       condition: service_healthy
 
 networks:
   red:
