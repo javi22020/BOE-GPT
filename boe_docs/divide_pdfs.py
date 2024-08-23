@@ -18,7 +18,7 @@ def get_documents_from_pdfs(folder: str):
 def divide_documents(documents: list):
     splitter = RecursiveCharacterTextSplitter()
     docs = splitter.split_documents(documents=documents)
-    return [d.page_content for d in docs], [d.metadata["filename"] for d in docs]
+    return [d.page_content for d in docs]
 
 if __name__ == "__main__":
     docs = get_documents_from_pdfs("pdfs/20230301")

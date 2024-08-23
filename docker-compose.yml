@@ -9,7 +9,7 @@ services:
       - "8000:8000"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
       retries: 5
   
@@ -21,7 +21,7 @@ services:
       - "6550:6550"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:6550/heartbeat"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
       retries: 5
     depends_on:
@@ -43,9 +43,9 @@ services:
       - "4550:4550"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4550/heartbeat"]
-      interval: 10s
+      interval: 60s
       timeout: 5s
-      retries: 5
+      retries: 100
     deploy:
       resources:
         reservations:
@@ -70,6 +70,13 @@ services:
         condition: service_healthy
       llm:
         condition: service_healthy
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
   
   # react:
   #   build: ./boe_react

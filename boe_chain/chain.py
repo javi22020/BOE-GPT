@@ -10,6 +10,7 @@ class BOEGPTChain():
     def __init__(self) -> None:
         self.llm = ChatOpenAI(
             base_url="http://llm:4550/v1",
+            api_key="Hola",
             streaming=True
         )
         self.chroma = Chroma(client=HttpClient(host="chroma", port=8000), collection_name="docs", embedding_function=LlamaCPPEmbeddings())
@@ -29,4 +30,4 @@ class BOEGPTChain():
     
     def query_stream(self, query: str):
         for r in self.chain.stream(input={"input": query}):
-            yield r
+            yield str(r)

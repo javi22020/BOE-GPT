@@ -4,6 +4,8 @@ import json, uvicorn, wget, os, threading
 os.makedirs("models", exist_ok=True)
 models = json.load(open("models.json", "r", encoding="utf-8"))
 model_settings = []
+if len(os.listdir("models")) == 0:
+    wget.download(models[0]["url"], out=f"models/{models[0]['filename']}")
 for m in models:
     model_settings.append(
         ModelSettings(
@@ -11,10 +13,10 @@ for m in models:
                 "model": "models/" + m["filename"],
                 "model_alias": m["alias"],
                 "n_gpu_layers": m["config"]["n_gpu_layers"],
-                "n_ctx": m["config"]["n_ctx"]
-            }
+                "n_ctx": m["config"]["n_ctx"],
+            },
+            flash_attn=True
         )
-        
     )
 
 app = create_app(

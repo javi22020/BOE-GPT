@@ -24,14 +24,6 @@ embedding_function = LlamaCPPEmbeddings()
 def embed_documents(docs: Documents):
     return embedding_function(docs)
 
-def separate_ids(ids: list[str]):
-    for i in range(1, len(ids)):
-        if ids[i] != ids[i-1]:
-            ids[i] = f"{ids[i]}_0"
-        elif ids[i] == ids[i-1]:
-            ids[i] = f"{ids[i]}_{int(ids[i-1][-1]) + 1}"
-    return ids
-
 @app.get("/")
 def root():
     return {"message": "Welcome to the APIBOE API"}
@@ -50,8 +42,8 @@ def send_to_chroma(date: str):
             if len(os.listdir(f"pdfs/{date}")) == len(pdfs.get_urls_by_date(date)):
                 logger.info("PDFs already downloaded")
                 docs = get_documents_from_pdfs(f"pdfs/{date}")
-                docs, ids = divide_documents(docs)
-                ids = separate_ids(ids)
+                docs = divide_documents(docs)
+                ids = [f"{date}_{i}" for i in range(len(docs))]
                 embeddings = embed_documents(docs)
                 collection.add(ids=ids, embeddings=embeddings)
                 return {"message": "PDFs already downloaded and sent to ChromaDB"}
@@ -71,8 +63,8 @@ def send_to_chroma(date: str):
         logger.info(f"Loaded {len(docs)} documents")
 
         # Divide documents
-        docs, ids = divide_documents(docs)
-        ids = separate_ids(ids)
+        docs = divide_documents(docs)
+        ids = [f"{date}_{i}" for i in range(len(docs))]
             
         logger.info(f"Divided into {len(docs)} document chunks")
         
