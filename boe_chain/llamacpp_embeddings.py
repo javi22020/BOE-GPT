@@ -9,7 +9,6 @@ class LlamaCPPEmbeddings(EmbeddingFunction):
             wget.download("https://huggingface.co/nomic-ai/nomic-embed-text-v1.5-GGUF/resolve/main/nomic-embed-text-v1.5.Q4_K_M.gguf", "models/nomic-embed-text-v1.5.Q4_K_M.gguf")
         self.llama = Llama(
             model_path="models/nomic-embed-text-v1.5.Q4_K_M.gguf",
-            n_gpu_layers=12,
             n_ctx=2048,
             n_threads=8,
             embedding=True
