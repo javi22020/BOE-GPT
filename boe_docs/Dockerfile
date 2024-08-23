@@ -1,15 +1,11 @@
-FROM nvidia/cuda:12.4.0-devel-ubuntu22.04
+FROM ubuntu:22.04
 
 COPY . app/
 
 WORKDIR /app
 
-ENV CUDA_HOME="/usr/local/cuda"
-ENV PATH="${CUDA_HOME}/bin:${PATH}"
-ENV LD_LIBRARY_PATH="${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}"
-ENV CUDACXX="${CUDA_HOME}/bin/nvcc"
-ENV CMAKE_ARGS="-DGGML_CUDA=on -DCMAKE_CUDA_COMPILER=${CUDA_HOME}/bin/nvcc -DLLAVA_BUILD=off"
-ENV FORCE_CMAKE=1
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Etc/UTC
 
 RUN apt-get update && apt-get install -y \
     python3.10 \
@@ -19,16 +15,23 @@ RUN apt-get update && apt-get install -y \
     cmake \
     ccache \
     curl \
-    git
+    git \
+    pkg-config \
+    libopenblas-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m venv venv
-    
-RUN . venv/bin/activate && \
-    pip install --upgrade pip setuptools wheel && \
-    CUDA_HOME=/usr/local/cuda  pip install llama-cpp-python \
-    --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu124 \
-    && pip install -r requirements.txt
 
-EXPOSE 6550:6550
+ENV PATH="/app/venv/bin:$PATH"
 
-CMD . venv/bin/activate && python3 api.py
+RUN pip install --upgrade pip setuptools wheel
+
+# Install llama-cpp-python from source
+RUN CMAKE_ARGS="-DGGML_BLAS=ON -DGGML_BLAS_VENDOR=OpenBLAS" pip install llama-cpp-python --no-binary llama-cpp-python
+
+# Install other requirements
+RUN pip install -r requirements.txt
+
+EXPOSE 6550
+
+CMD ["python3", "api.py"]
