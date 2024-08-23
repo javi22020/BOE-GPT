@@ -32,6 +32,6 @@ RUN CMAKE_ARGS="-DGGML_BLAS=ON -DGGML_BLAS_VENDOR=OpenBLAS" pip install llama-cp
 # Install other requirements
 RUN pip install -r requirements.txt
 
-EXPOSE 6550
+EXPOSE 6550:6550
 
 CMD ["python3", "api.py"]
