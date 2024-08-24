@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Montserrat } from 'next/font/google';
 
@@ -10,6 +10,8 @@ const ChatScreen = () => {
   const [question, setQuestion] = useState('');
   const [chat, setChat] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const chatEndRef = useRef(null);
 
   useEffect(() => {
     if (router.isReady) {
@@ -20,19 +22,61 @@ const ChatScreen = () => {
           { role: 'user', content: decodeURIComponent(question) },
           { role: 'assistant', content: 'Thank you for your question. I am processing it now...' }
         ]);
+        handleSendMessage(null, decodeURIComponent(question));
       }
     }
   }, [router.isReady, router.query]);
 
-  const handleSendMessage = (e) => {
-    e.preventDefault();
-    if (newMessage.trim()) {
-      setChat([...chat, { role: 'user', content: newMessage }]);
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chat]);
+
+  const handleSendMessage = async (e, initialQuestion = null) => {
+    e?.preventDefault();
+    const messageToSend = initialQuestion || newMessage.trim();
+    if (messageToSend) {
+      setChat(prev => [...prev, { role: 'user', content: messageToSend }]);
       setNewMessage('');
-      // Simulate BOE-GPT response
-      setTimeout(() => {
-        setChat(prevChat => [...prevChat, { role: 'assistant', content: `I've received your message: "${newMessage}". How can I assist you further?` }]);
-      }, 1000);
+      setIsLoading(true);
+
+      try {
+        const response = await fetch('http://127.0.0.1:3550/chat_stream', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `query=${encodeURIComponent(messageToSend)}`,
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let assistantMessage = '';
+
+        setChat(prev => [...prev, { role: 'assistant', content: '' }]);
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value);
+          assistantMessage += chunk;
+          
+          setChat(prev => {
+            const newChat = [...prev];
+            newChat[newChat.length - 1] = { role: 'assistant', content: assistantMessage };
+            return newChat;
+          });
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        setChat(prev => [...prev, { role: 'assistant', content: 'Lo siento, ha ocurrido un error al procesar tu mensaje.' }]);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -49,6 +93,7 @@ const ChatScreen = () => {
             </div>
           </div>
         ))}
+        <div ref={chatEndRef} />
       </div>
       <form onSubmit={handleSendMessage} className="p-4 bg-gray-900">
         <div className="flex space-x-2">
@@ -58,13 +103,14 @@ const ChatScreen = () => {
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Escribe tu mensaje..."
             className="flex-grow px-4 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={isLoading}
           />
           <button 
             type="submit"
             className="px-6 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed"
-            disabled={!newMessage.trim()}
+            disabled={!newMessage.trim() || isLoading}
           >
-            Enviar
+            {isLoading ? 'Enviando...' : 'Enviar'}
           </button>
         </div>
       </form>
