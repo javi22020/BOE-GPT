@@ -9,8 +9,9 @@ from langchain.chains.retrieval import create_retrieval_chain
 class BOEGPTChain():
     def __init__(self) -> None:
         self.llm = ChatOpenAI(
-            base_url="http://llm:4550/v1",
-            api_key="Hola",
+            # base_url="http://llm:4550/v1",
+            model="gpt-4o-mini",
+            api_key="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",
             streaming=True
         )
         self.chroma = Chroma(client=HttpClient(host="chroma", port=8000), collection_name="docs", embedding_function=LlamaCPPEmbeddings())
