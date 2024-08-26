@@ -20,5 +20,3 @@ def divide_documents(documents: list):
     docs = splitter.split_documents(documents=documents)
     return [d.page_content for d in docs]
 
-if __name__ == "__main__":
-    docs = get_documents_from_pdfs("pdfs/20230301")

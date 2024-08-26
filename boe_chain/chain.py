@@ -27,8 +27,8 @@ class BOEGPTChain():
 
     def query(self, query: str):
         r = self.chain.invoke(input={"input": query})
-        return r
+        return r["answer"]
     
     def query_stream(self, query: str):
         for r in self.chain.stream(input={"input": query}):
-            yield str(r)
+            yield r["answer"]
