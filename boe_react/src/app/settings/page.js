@@ -1,132 +1,175 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Montserrat } from 'next/font/google';
-import { Save, RefreshCw, Plus, X } from 'lucide-react';
 import axios from 'axios';
+import { ArrowLeft, Download, Check, Sun, Moon } from 'lucide-react';
+import { ThemeProvider, useTheme } from '../contexts/theme';
 
-const montserrat = Montserrat({ subsets: ['latin'] });
+const api_docs = axios.create({
+  baseURL: 'http://localhost:6550',
+  withCredentials: true,
+});
 
-const SettingsPage = () => {
-  const router = useRouter();
-  const [availableModels, setAvailableModels] = useState([]);
+const api_chain = axios.create({
+  baseURL: 'http://localhost:3550',
+})
+
+const SettingsPageContent = () => {
+  const { darkMode, toggleTheme } = useTheme();
+  const [selectedDate, setSelectedDate] = useState('');
+  const [models, setModels] = useState([]);
   const [selectedModel, setSelectedModel] = useState('');
-  const [boeDates, setBoeDates] = useState([]);
-  const [currentDate, setCurrentDate] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
-    fetchAvailableModels();
+    fetchModels();
   }, []);
 
-  const fetchAvailableModels = async () => {
+  const fetchModels = async () => {
     try {
-      const response = await axios.get('http://llm:4550/all_llms');
-      setAvailableModels(response.data);
+      const response = await api_chain.get('/available_models');
+      setModels(response.data);
       if (response.data.length > 0) {
-        setSelectedModel(response.data[0].name);
-        setMaxContextTokens(response.data[0].config.n_ctx);
+        setSelectedModel(response.data[0]);
       }
     } catch (error) {
       console.error('Error fetching models:', error);
+      setMessage('Error al cargar los modelos disponibles.');
+    }
+  };
+
+  const handleDateChange = (e) => {
+    const date = e.target.value;
+    if (new Date(date) <= new Date()) {
+      setSelectedDate(date);
+    } else {
+      setMessage('No se pueden seleccionar fechas futuras.');
     }
   };
 
   const handleModelChange = (e) => {
-    const modelName = e.target.value;
-    setSelectedModel(modelName);
-    const selectedModelConfig = availableModels.find(model => model.name === modelName);
-    if (selectedModelConfig) {
-      setMaxContextTokens(selectedModelConfig.config.n_ctx);
-      setContextTokens(Math.min(contextTokens, selectedModelConfig.config.n_ctx));
+    setSelectedModel(e.target.value);
+  };
+
+  const handleDownload = async () => {
+    if (!selectedDate) {
+      setMessage('Por favor, selecciona una fecha.');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const response = await api_docs.post('/download_boe', { date: selectedDate });
+      setMessage('BOE descargado correctamente.');
+    } catch (error) {
+      console.error('Error downloading BOE:', error);
+      setMessage('Error al descargar el BOE.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleSaveSettings = async () => {
+  const handleSave = async () => {
+    setIsLoading(true);
     try {
-      const modelIndex = availableModels.findIndex(model => model.name === selectedModel);
-      if (modelIndex !== -1) {
-        await axios.post(`http://llm:4550/set_llm/${modelIndex}`);
-      }
-      // Here you would also send the contextTokens and boeDates to your backend if needed
-      console.log('Settings saved:', { selectedModel, contextTokens, boeDates });
-      router.push('/');
+      await api_docs.post('/update_settings', { model: selectedModel });
+      setMessage('Configuración guardada correctamente.');
     } catch (error) {
       console.error('Error saving settings:', error);
+      setMessage('Error al guardar la configuración.');
+    } finally {
+      setIsLoading(false);
     }
-  };
-
-  const handleAddDate = () => {
-    if (currentDate && !boeDates.includes(currentDate)) {
-      setBoeDates([...boeDates, currentDate]);
-      setCurrentDate('');
-    }
-  };
-
-  const handleRemoveDate = (dateToRemove) => {
-    setBoeDates(boeDates.filter(date => date !== dateToRemove));
   };
 
   return (
-    <div className={`min-h-screen bg-black flex flex-col items-center justify-center ${montserrat.className}`}>
-      <h1 className="text-4xl font-bold text-white mb-8">Ajustes</h1>
+    <div className={`flex flex-col h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
+      <div className={`${darkMode ? 'bg-gray-800' : 'bg-blue-600'} text-white p-4 flex justify-between items-center`}>
+        <div className="flex items-center">
+          <button onClick={() => router.push('/')} className="mr-4">
+            <ArrowLeft size={24} />
+          </button>
+          <h1 className="text-xl font-bold">Ajustes</h1>
+        </div>
+        <button onClick={toggleTheme} className="p-2 hover:bg-opacity-20 hover:bg-white rounded-full">
+          {darkMode ? <Sun size={24} /> : <Moon size={24} />}
+        </button>
+      </div>
       
-      <div className="w-full max-w-md space-y-6 text-white">
-        <div>
-          <label htmlFor="model-select" className="block mb-2">Modelo de Lenguaje</label>
+      <div className="flex-grow p-4 overflow-auto">
+        <div className={`mb-6 p-4 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-md`}>
+          <h2 className="text-lg font-semibold mb-2">Descargar BOE</h2>
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={handleDateChange}
+            max={new Date().toISOString().split('T')[0]}
+            className={`w-full p-2 mb-2 rounded ${
+              darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
+            } border ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}
+          />
+          <button
+            onClick={handleDownload}
+            disabled={isLoading || !selectedDate}
+            className={`w-full p-2 rounded ${
+              darkMode
+                ? 'bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700'
+                : 'bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300'
+            } text-white disabled:text-gray-400 transition-colors flex items-center justify-center`}
+          >
+            <Download size={18} className="mr-2" />
+            Descargar BOE
+          </button>
+        </div>
+
+        <div className={`mb-6 p-4 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-md`}>
+          <h2 className="text-lg font-semibold mb-2">Modelo de Lenguaje</h2>
           <select
-            id="model-select"
             value={selectedModel}
             onChange={handleModelChange}
-            className="w-full p-2 bg-gray-700 rounded"
+            className={`w-full p-2 mb-2 rounded ${
+              darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
+            } border ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}
           >
-            {availableModels.map((model, index) => (
-              <option key={index} value={model.name}>{model.name}</option>
+            {models.map((model) => (
+              <option key={model} value={model}>
+                {model}
+              </option>
             ))}
           </select>
+          <button
+            onClick={handleSave}
+            disabled={isLoading}
+            className={`w-full p-2 rounded ${
+              darkMode
+                ? 'bg-green-600 hover:bg-green-700 disabled:bg-gray-700'
+                : 'bg-green-500 hover:bg-green-600 disabled:bg-gray-300'
+            } text-white disabled:text-gray-400 transition-colors flex items-center justify-center`}
+          >
+            <Check size={18} className="mr-2" />
+            Guardar Configuración
+          </button>
         </div>
 
-        <div>
-          <label htmlFor="boe-date" className="block mb-2">Fechas BOE a Descargar</label>
-          <div className="flex">
-            <input
-              type="date"
-              id="boe-date"
-              value={currentDate}
-              onChange={(e) => setCurrentDate(e.target.value)}
-              className="flex-grow p-2 bg-gray-700 rounded-l"
-            />
-            <button
-              onClick={handleAddDate}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r"
-            >
-              <Plus size={20} />
-            </button>
+        {message && (
+          <div className={`p-2 rounded ${
+            message.includes('Error')
+              ? 'bg-red-100 text-red-700'
+              : 'bg-green-100 text-green-700'
+          }`}>
+            {message}
           </div>
-          <div className="mt-2 space-y-2">
-            {boeDates.map((date, index) => (
-              <div key={index} className="flex items-center bg-gray-700 rounded p-2">
-                <span className="flex-grow">{date}</span>
-                <button
-                  onClick={() => handleRemoveDate(date)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <button
-          onClick={handleSaveSettings}
-          className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center justify-center transition duration-300"
-        >
-          <Save className="mr-2" size={20} />
-          Aplicar Ajustes
-        </button>
+        )}
       </div>
     </div>
   );
 };
+
+const SettingsPage = () => (
+  <ThemeProvider>
+    <SettingsPageContent />
+  </ThemeProvider>
+);
 
 export default SettingsPage;

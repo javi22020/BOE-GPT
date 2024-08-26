@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useEffect, useRef, createContext, useContext } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ThemeProvider, useTheme } from '../contexts/theme';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { Send, User, Bot, Settings, Sun, Moon } from 'lucide-react';
@@ -13,33 +14,6 @@ const api = axios.create({
 // Función de logging simple
 const log = (message, data = '') => {
   console.log(`[ChatPage] ${message}`, data);
-};
-
-// Contexto del tema
-const ThemeContext = createContext();
-
-// Hook personalizado para usar el tema
-const useTheme = () => {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme debe ser usado dentro de un ThemeProvider');
-  }
-  return context;
-};
-
-// Proveedor del tema
-const ThemeProvider = ({ children }) => {
-  const [darkMode, setDarkMode] = useState(false);
-
-  const toggleTheme = () => {
-    setDarkMode(!darkMode);
-  };
-
-  return (
-    <ThemeContext.Provider value={{ darkMode, toggleTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
 };
 
 const ChatPage = () => {

@@ -34,5 +34,9 @@ def stream_chat(query: str = Body(..., embed=True)):
 def heartbeat():
     return {"message": "Alive"}
 
+@app.get("/available_models")
+def available_models():
+    return chain.available_models()
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=3550)
