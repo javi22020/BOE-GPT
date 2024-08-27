@@ -38,5 +38,3 @@ class BOEGPTChain():
         for r in self.chain.stream(input={"input": query}):
             if isinstance(r, dict) and "answer" in r:
                 yield r["answer"]
-            else:
-                yield str(r)
