@@ -25,7 +25,22 @@ class BOEGPTChain():
         prompt_docs = PromptTemplate.from_template(open("prompt_docs.md", "r", encoding="utf-8").read())
         self.doc_chain = create_stuff_documents_chain(
             llm=self.llm,
-            prompt=prompt_docs
+            prompt=self.prompt_docs
+        )
+        self.chain = create_retrieval_chain(
+            retriever=self.chroma.as_retriever(),
+            combine_docs_chain=self.doc_chain
+        )
+    
+    def change_model(self, model: str):
+        self.llm = ChatOpenAI(
+            api_key=self.api_key,
+            model=model,
+            streaming=True
+        )
+        self.doc_chain = create_stuff_documents_chain(
+            llm=self.llm,
+            prompt=self.prompt_docs
         )
         self.chain = create_retrieval_chain(
             retriever=self.chroma.as_retriever(),

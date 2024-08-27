@@ -1,6 +1,7 @@
 import React from 'react';
 import { Montserrat } from 'next/font/google';
 import "./globals.css";
+import { ThemeProvider } from './contexts/theme';
 
 const montserrat = Montserrat({ subsets: ['latin'] });
 
@@ -13,9 +14,11 @@ export default function RootLayout({ children }) {
   return (
     <html>
       <body>
-        <div className={`min-h-screen bg-black ${montserrat.className}`}>
-          {children}
-        </div>
+        <ThemeProvider>
+          <div className={`min-h-screen bg-black ${montserrat.className}`}>
+            {children}
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );
