@@ -1,17 +1,14 @@
-"use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { ThemeProvider, useTheme } from '../contexts/theme';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { Send, User, Bot, Settings, Sun, Moon } from 'lucide-react';
 
-// Configuración de Axios
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3550',
+  baseURL: 'http://localhost:3550',
   withCredentials: true,
 });
 
-// Función de logging simple
 const log = (message, data = '') => {
   console.log(`[ChatPage] ${message}`, data);
 };
@@ -43,12 +40,29 @@ const ChatPage = () => {
     setInputMessage('');
 
     try {
-      const response = await api.post('/chat', { query: inputMessage });
-      log('Respuesta recibida', response.data);
-      
-      const botResponse = response.data;
-      
-      setMessages(prev => [...prev, { text: botResponse, sender: 'bot' }]);
+      const response = await api.post('/chat_stream', { query: inputMessage }, {
+        responseType: 'stream'
+      });
+
+      const reader = response.data.getReader();
+      const decoder = new TextDecoder();
+      let botResponse = '';
+
+      setMessages(prev => [...prev, { text: '', sender: 'bot' }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        botResponse += chunk;
+
+        setMessages(prev => {
+          const newMessages = [...prev];
+          newMessages[newMessages.length - 1] = { text: botResponse, sender: 'bot' };
+          return newMessages;
+        });
+      }
     } catch (error) {
       log('Error en la solicitud', error);
       setMessages(prev => [...prev, { text: 'Error al obtener la respuesta.', sender: 'bot' }]);
@@ -63,7 +77,6 @@ const ChatPage = () => {
 
   return (
     <div className={`flex flex-col h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
-      {/* Barra superior */}
       <div className={`${darkMode ? 'bg-gray-800' : 'bg-blue-600'} text-white p-4 flex justify-between items-center`}>
         <h1 className="text-xl font-bold">Chat BOE</h1>
         <div className="flex items-center">
@@ -76,7 +89,6 @@ const ChatPage = () => {
         </div>
       </div>
 
-      {/* Área de mensajes */}
       <div className={`flex-grow overflow-auto p-4 ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
         {messages.map((message, index) => (
           <div key={index} className={`mb-4 flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -100,7 +112,6 @@ const ChatPage = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Área de entrada de mensaje */}
       <form onSubmit={handleSubmit} className={`${darkMode ? 'bg-gray-800' : 'bg-white'} p-4 flex items-center`}>
         <input
           type="text"
