@@ -27,7 +27,7 @@ ENV PATH="/app/venv/bin:$PATH"
 RUN pip install --upgrade pip setuptools wheel
 
 # Install llama-cpp-python from source
-RUN CMAKE_ARGS="-DGGML_BLAS=ON -DGGML_BLAS_VENDOR=OpenBLAS" pip install llama-cpp-python --no-binary llama-cpp-python
+RUN CMAKE_ARGS="-DGGML_BLAS=ON -DGGML_BLAS_VENDOR=OpenBLAS" pip install llama-cpp-python
 
 # Install other requirements
 RUN pip install -r requirements.txt
