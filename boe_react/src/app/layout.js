@@ -1,5 +1,4 @@
 import React from 'react';
-import Image from 'next/image';
 import { Montserrat } from 'next/font/google';
 import "./globals.css";
 
@@ -7,7 +6,7 @@ const montserrat = Montserrat({ subsets: ['latin'] });
 
 export const metadata = {
   title: "BOE-GPT",
-  description: "Created by Javier Cervera",
+  description: "Autor: Javier Cervera",
 };
 
 export default function RootLayout({ children }) {

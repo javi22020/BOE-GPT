@@ -60,7 +60,7 @@ const SettingsPageContent = () => {
     }
     setIsLoading(true);
     try {
-      const response = await api_docs.post('/download_boe', { date: selectedDate });
+      const response = await api_docs.post('/send_to_chroma/' + selectedDate.replace('*-', ''));
       setMessage('BOE descargado correctamente.');
     } catch (error) {
       console.error('Error downloading BOE:', error);

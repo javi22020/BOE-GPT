@@ -32,7 +32,7 @@ class BOEGPTChain():
         return r["answer"]
     
     def available_models(self):
-        return [m for m in self.client.models.list()]
+        return [m.model_dump_json() for m in self.client.models.list()]
     
     def query_stream(self, query: str):
         for r in self.chain.stream(input={"input": query}):
