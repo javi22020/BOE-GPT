@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from chain import BOEGPTChain
+import asyncio
 
 app = FastAPI()
 
@@ -27,8 +28,13 @@ def chat(query: str = Body(..., embed=True)):
     return JSONResponse(content=r)
 
 @app.post("/chat_stream")
-def stream_chat(query: str = Body(..., embed=True)):
-    return StreamingResponse(chain.query_stream(query), media_type="text/event-stream")
+async def stream_chat(query: str = Body(..., embed=True)):
+    async def event_generator():
+        for chunk in chain.query_stream(query):
+            yield f"data: {chunk}\n\n"
+            await asyncio.sleep(0)  # Allow other tasks to run
+    
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 @app.get("/heartbeat")
 def heartbeat():

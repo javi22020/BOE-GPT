@@ -42,28 +42,28 @@ const ChatPage = () => {
 
     try {
       const response = await api.post('/chat_stream', { query: inputMessage }, {
-        responseType: 'stream'
+        responseType: 'text',
+        onDownloadProgress: (progressEvent) => {
+          const dataChunks = progressEvent.event.target.response.split('\n\n');
+          let botResponse = '';
+          
+          dataChunks.forEach(chunk => {
+            if (chunk.startsWith('data: ')) {
+              botResponse += chunk.slice(6);
+              setMessages(prev => {
+                const newMessages = [...prev];
+                if (newMessages[newMessages.length - 1].sender === 'bot') {
+                  newMessages[newMessages.length - 1] = { text: botResponse, sender: 'bot' };
+                } else {
+                  newMessages.push({ text: botResponse, sender: 'bot' });
+                }
+                return newMessages;
+              });
+            }
+          });
+        }
       });
 
-      const reader = response.data.getReader();
-      const decoder = new TextDecoder();
-      let botResponse = '';
-
-      setMessages(prev => [...prev, { text: '', sender: 'bot' }]);
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        botResponse += chunk;
-
-        setMessages(prev => {
-          const newMessages = [...prev];
-          newMessages[newMessages.length - 1] = { text: botResponse, sender: 'bot' };
-          return newMessages;
-        });
-      }
     } catch (error) {
       log('Error en la solicitud', error);
       setMessages(prev => [...prev, { text: 'Error al obtener la respuesta.', sender: 'bot' }]);
@@ -78,6 +78,7 @@ const ChatPage = () => {
 
   return (
     <div className={`flex flex-col h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
+      {/* Barra superior */}
       <div className={`${darkMode ? 'bg-gray-800' : 'bg-blue-600'} text-white p-4 flex justify-between items-center`}>
         <h1 className="text-xl font-bold">Chat BOE</h1>
         <div className="flex items-center">
@@ -90,6 +91,7 @@ const ChatPage = () => {
         </div>
       </div>
 
+      {/* Área de mensajes */}
       <div className={`flex-grow overflow-auto p-4 ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
         {messages.map((message, index) => (
           <div key={index} className={`mb-4 flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -113,6 +115,7 @@ const ChatPage = () => {
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Área de entrada de mensaje */}
       <form onSubmit={handleSubmit} className={`${darkMode ? 'bg-gray-800' : 'bg-white'} p-4 flex items-center`}>
         <input
           type="text"

@@ -6,12 +6,12 @@ from langchain_chroma.vectorstores import Chroma
 from llamacpp_embeddings import LlamaCPPEmbeddings
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.retrieval import create_retrieval_chain
+
 class BOEGPTChain():
     def __init__(self) -> None:
         api_key="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"
         self.client = openai.OpenAI(api_key=api_key)
         self.llm = ChatOpenAI(
-            # base_url="http://llm:4550/v1",
             api_key=api_key,
             model="gpt-4o-mini",
             streaming=True
@@ -36,4 +36,7 @@ class BOEGPTChain():
     
     def query_stream(self, query: str):
         for r in self.chain.stream(input={"input": query}):
-            yield str(r) + "\n"
+            if isinstance(r, dict) and "answer" in r:
+                yield r["answer"]
+            else:
+                yield str(r)
