@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { ThemeProvider, useTheme } from '../contexts/theme';
 import { useRouter } from 'next/navigation';

@@ -18,7 +18,7 @@ class PDFSBOE:
         with r.Session() as session:
             with session.get(url, headers={"Accept": "application/json"}) as response:
                 if response.status_code != 200:
-                    return None
+                    raise Exception(f"Error getting BOE by date: {response.status_code}")
                 data = response.json()
             
             data = data["data"]

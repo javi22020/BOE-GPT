@@ -36,4 +36,4 @@ class BOEGPTChain():
     
     def query_stream(self, query: str):
         for r in self.chain.stream(input={"input": query}):
-            yield r["answer"]
+            yield str(r) + "\n"

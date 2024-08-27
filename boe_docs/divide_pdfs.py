@@ -13,7 +13,7 @@ def get_documents_from_pdfs(folder: str):
                     "date": root.split("/")[-1]
                 }
                 docs.append(doc)
-    return docs
+    return [d for d in docs if d is not None]
 
 def divide_documents(documents: list):
     splitter = RecursiveCharacterTextSplitter()
