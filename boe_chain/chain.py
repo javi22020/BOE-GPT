@@ -9,18 +9,33 @@ from langchain.chains.retrieval import create_retrieval_chain
 
 class BOEGPTChain():
     def __init__(self) -> None:
-        api_key="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"
-        self.client = openai.OpenAI(api_key=api_key)
+        self.api_key="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"
+        self.client = openai.OpenAI(api_key=self.api_key)
         self.llm = ChatOpenAI(
-            api_key=api_key,
+            api_key=self.api_key,
             model="gpt-4o-mini",
             streaming=True
         )
         self.chroma = Chroma(client=HttpClient(host="127.0.0.1", port=8000), collection_name="docs", embedding_function=LlamaCPPEmbeddings())
-        prompt_docs = PromptTemplate.from_template(open("prompt_docs.md", "r", encoding="utf-8").read())
+        self.prompt_docs = PromptTemplate.from_template(open("prompt_docs.md", "r", encoding="utf-8").read())
         self.doc_chain = create_stuff_documents_chain(
             llm=self.llm,
-            prompt=prompt_docs
+            prompt=self.prompt_docs
+        )
+        self.chain = create_retrieval_chain(
+            retriever=self.chroma.as_retriever(),
+            combine_docs_chain=self.doc_chain
+        )
+    
+    def change_model(self, model: str):
+        self.llm = ChatOpenAI(
+            api_key=self.api_key,
+            model=model,
+            streaming=True
+        )
+        self.doc_chain = create_stuff_documents_chain(
+            llm=self.llm,
+            prompt=self.prompt_docs
         )
         self.chain = create_retrieval_chain(
             retriever=self.chroma.as_retriever(),

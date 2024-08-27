@@ -3,7 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { ArrowLeft, Download, Check, Sun, Moon } from 'lucide-react';
+import { Montserrat } from 'next/font/google';
 import { ThemeProvider, useTheme } from '../contexts/theme';
+
+const montserrat = Montserrat({ subsets: ['latin'] });
 
 const api_docs = axios.create({
   baseURL: 'http://localhost:6550',
@@ -14,7 +17,7 @@ const api_chain = axios.create({
   baseURL: 'http://localhost:3550',
 })
 
-const SettingsPageContent = () => {
+const SettingsPage = () => {
   const { darkMode, toggleTheme } = useTheme();
   const [selectedDate, setSelectedDate] = useState('');
   const [models, setModels] = useState([]);
@@ -22,6 +25,7 @@ const SettingsPageContent = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const router = useRouter();
+  
 
   useEffect(() => {
     fetchModels();
@@ -84,8 +88,8 @@ const SettingsPageContent = () => {
   };
 
   return (
-    <div className={`flex flex-col h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
-      <div className={`${darkMode ? 'bg-gray-800' : 'bg-blue-600'} text-white p-4 flex justify-between items-center`}>
+    <div className={`flex flex-col h-screen ${montserrat.className} ${darkMode ? 'bg-black text-white' : 'bg-gray-100 text-black'}`}>
+      <div className={`${darkMode ? 'bg-gray-900' : 'bg-blue-600'} text-white p-4 flex justify-between items-center`}>
         <div className="flex items-center">
           <button onClick={() => router.push('/')} className="mr-4">
             <ArrowLeft size={24} />
@@ -98,7 +102,7 @@ const SettingsPageContent = () => {
       </div>
       
       <div className="flex-grow p-4 overflow-auto">
-        <div className={`mb-6 p-4 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-md`}>
+        <div className={`mb-6 p-4 rounded-lg ${darkMode ? 'bg-gray-900' : 'bg-white'} shadow-md`}>
           <h2 className="text-lg font-semibold mb-2">Descargar BOE</h2>
           <input
             type="date"
@@ -106,7 +110,7 @@ const SettingsPageContent = () => {
             onChange={handleDateChange}
             max={new Date().toISOString().split('T')[0]}
             className={`w-full p-2 mb-2 rounded ${
-              darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
+              darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-black'
             } border ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}
           />
           <button
@@ -123,13 +127,13 @@ const SettingsPageContent = () => {
           </button>
         </div>
 
-        <div className={`mb-6 p-4 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-md`}>
+        <div className={`mb-6 p-4 rounded-lg ${darkMode ? 'bg-gray-900' : 'bg-white'} shadow-md`}>
           <h2 className="text-lg font-semibold mb-2">Modelo de Lenguaje</h2>
           <select
             value={selectedModel}
             onChange={handleModelChange}
             className={`w-full p-2 mb-2 rounded ${
-              darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
+              darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-black'
             } border ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}
           >
             {models.map((model) => (
@@ -165,11 +169,5 @@ const SettingsPageContent = () => {
     </div>
   );
 };
-
-const SettingsPage = () => (
-  <ThemeProvider>
-    <SettingsPageContent />
-  </ThemeProvider>
-);
 
 export default SettingsPage;

@@ -1,9 +1,12 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
+import { Montserrat } from 'next/font/google';
 import { ThemeProvider, useTheme } from '../contexts/theme';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { Send, User, Bot, Settings, Sun, Moon } from 'lucide-react';
+
+const montserrat = Montserrat({ subsets: ['latin'] });
 
 const api = axios.create({
   baseURL: 'http://localhost:3550',
@@ -77,7 +80,7 @@ const ChatPage = () => {
   };
 
   return (
-    <div className={`flex flex-col h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
+    <div className={`flex flex-col h-screen ${montserrat.className} ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
       {/* Barra superior */}
       <div className={`${darkMode ? 'bg-gray-800' : 'bg-blue-600'} text-white p-4 flex justify-between items-center`}>
         <h1 className="text-xl font-bold">Chat BOE</h1>
@@ -143,10 +146,4 @@ const ChatPage = () => {
   );
 };
 
-const ChatPageWithTheme = () => (
-  <ThemeProvider>
-    <ChatPage />
-  </ThemeProvider>
-);
-
-export default ChatPageWithTheme;
+export default ChatPage;
