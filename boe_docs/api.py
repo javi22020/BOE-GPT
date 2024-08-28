@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 pdfs = PDFSBOE()
-chroma_client = HttpClient(host="127.0.0.1", port=8000)
+chroma_client = HttpClient(host="chroma", port=8000)
 collection = chroma_client.get_or_create_collection("docs")
 app = FastAPI()
 embedding_function = LlamaCPPEmbeddings()

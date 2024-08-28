@@ -32,7 +32,7 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              count: 1
+              count: all
               capabilities: [gpu]
   
   # llm:
@@ -51,7 +51,7 @@ services:
   #       reservations:
   #         devices:
   #           - driver: nvidia
-  #             count: 1
+  #             count: all
   #             capabilities: [gpu]
   
   chain:
@@ -75,7 +75,7 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              count: 1
+              count: all
               capabilities: [gpu]
   
   # react:

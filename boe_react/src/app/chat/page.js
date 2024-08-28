@@ -4,7 +4,7 @@ import { Montserrat } from 'next/font/google';
 import { ThemeProvider, useTheme } from '../contexts/theme';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { Send, User, Bot, Settings, Sun, Moon } from 'lucide-react';
+import { ArrowLeft, Send, User, Bot, Settings, Sun, Moon } from 'lucide-react';
 
 const montserrat = Montserrat({ subsets: ['latin'] });
 
@@ -80,10 +80,15 @@ const ChatPage = () => {
   };
 
   return (
-    <div className={`flex flex-col h-screen ${montserrat.className} ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
+    <div className={`flex flex-col h-screen ${montserrat.className} ${darkMode ? 'bg-black text-white' : 'bg-gray-100 text-black'}`}>
       {/* Barra superior */}
-      <div className={`${darkMode ? 'bg-gray-800' : 'bg-blue-600'} text-white p-4 flex justify-between items-center`}>
-        <h1 className="text-xl font-bold">Chat BOE</h1>
+      <div className={`${darkMode ? 'bg-gray-900' : 'bg-blue-600'} text-white p-4 flex justify-between items-center`}>
+        <div className="flex items-center">
+          <button onClick={() => router.push('/')} className="mr-4">
+            <ArrowLeft size={24} />
+          </button>
+          <h1 className="text-xl font-bold">Chat BOE</h1>
+        </div>
         <div className="flex items-center">
           <button onClick={toggleTheme} className="p-2 mr-2 hover:bg-opacity-20 hover:bg-white rounded-full">
             {darkMode ? <Sun size={24} /> : <Moon size={24} />}
@@ -95,14 +100,14 @@ const ChatPage = () => {
       </div>
 
       {/* Área de mensajes */}
-      <div className={`flex-grow overflow-auto p-4 ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
+      <div className={`flex-grow overflow-auto p-4 ${darkMode ? 'bg-black' : 'bg-gray-100'}`}>
         {messages.map((message, index) => (
           <div key={index} className={`mb-4 flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`flex items-end max-w-3/4 ${message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
               <div className={`p-3 rounded-lg ${
                 message.sender === 'user'
                   ? 'bg-blue-500 text-white'
-                  : darkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-900'
+                  : darkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'
               } ${message.sender === 'user' ? 'rounded-br-none' : 'rounded-bl-none'} shadow-md`}>
                 {message.text}
               </div>
@@ -119,7 +124,7 @@ const ChatPage = () => {
       </div>
 
       {/* Área de entrada de mensaje */}
-      <form onSubmit={handleSubmit} className={`${darkMode ? 'bg-gray-800' : 'bg-white'} p-4 flex items-center`}>
+      <form onSubmit={handleSubmit} className={`${darkMode ? 'bg-gray-900' : 'bg-white'} p-4 flex items-center`}>
         <input
           type="text"
           value={inputMessage}
@@ -127,7 +132,7 @@ const ChatPage = () => {
           placeholder="Escribe tu mensaje aquí..."
           disabled={isLoading}
           className={`flex-grow p-2 border ${
-            darkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'
+            darkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black border-gray-300'
           } rounded-lg mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
         />
         <button 
