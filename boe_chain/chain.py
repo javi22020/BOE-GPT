@@ -9,7 +9,7 @@ from langchain.chains.retrieval import create_retrieval_chain
 
 class BOEGPTChain():
     def __init__(self) -> None:
-        self.base_url = "http://llm:4550"
+        self.base_url = "http://127.0.0.1:4550"
         self.api_key="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"
         self.client = openai.OpenAI(
             base_url=self.base_url,
@@ -18,10 +18,10 @@ class BOEGPTChain():
         self.llm = ChatOpenAI(
             # base_url=self.base_url, # Comentar para usar el servidor de OpenAI
             api_key=self.api_key,
-            model="phi-3.5-mini-instruct",
+            model="llama-3.1-8b-instruct",
             streaming=True
         )
-        self.chroma = Chroma(client=HttpClient(host="chroma", port=8000), collection_name="docs", embedding_function=LlamaCPPEmbeddings())
+        self.chroma = Chroma(client=HttpClient(host="127.0.0.1", port=8000), collection_name="docs", embedding_function=LlamaCPPEmbeddings())
         self.prompt_docs = PromptTemplate.from_template(open("prompt_docs.md", "r", encoding="utf-8").read())
         self.doc_chain = create_stuff_documents_chain(
             llm=self.llm,
@@ -33,7 +33,7 @@ class BOEGPTChain():
         )
     
     def change_model(self, model: str):
-        resp = r.post("http://llm:4550/download/" + model)
+        resp = r.post("http://127.0.0.1:4550/download/" + model)
         print(resp.json())
         if resp.status_code == 200:
             self.llm = ChatOpenAI(

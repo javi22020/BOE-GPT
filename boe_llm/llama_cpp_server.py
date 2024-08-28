@@ -27,22 +27,6 @@ app = create_app(
     )
 )
 
-@app.get("/download/{model}")
-def download_model(model: str):
-    model = [m for m in models if m["alias"] == model][0]
-    if model["filename"] in os.listdir("models"):
-        return {"message": f"Model {model['filename']} already downloaded"}
-    filename = model["filename"]
-    url = model["url"]
-    wget.download(url, out=f"models/{filename}")
-    global models
-    models.append(model)
-    return {"message": f"Downloaded {filename}"}
-
-@app.get("/downloaded_models")
-def downloaded_models():
-    return {"models": [f.removesuffix(".gguf") for f in os.listdir("models") if f.endswith(".gguf")]}
-
 @app.get("/heartbeat")
 def heartbeat():
     return {"message": "Alive"}
